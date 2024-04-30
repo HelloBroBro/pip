@@ -97,7 +97,7 @@ jobs:
 
   tests-unix:
     name: tests / ${{ matrix.python.key || matrix.python }} / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
 
     needs: [packaging, determine-changes]
     if: >-
@@ -107,13 +107,14 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [Ubuntu, MacOS]
+        os: [ubuntu-latest, macos-12]
         python:
           - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
 
     steps:
       - uses: actions/checkout@v4
@@ -123,13 +124,13 @@ jobs:
           allow-prereleases: true
 
       - name: Install Ubuntu dependencies
-        if: matrix.os == 'Ubuntu'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install bzr
 
       - name: Install MacOS dependencies
-        if: matrix.os == 'MacOS'
+        if: matrix.os == 'macos-12'
         run: brew install breezy
 
       - run: pip install nox
@@ -167,7 +168,8 @@ jobs:
           # - "3.9"
           # - "3.10"
           # - "3.11"
-          - "3.12"
+          - "3.12"  # Comment out when 3.13 is final
+          - "3.13"
         group: [1, 2]
 
     steps:
@@ -175,6 +177,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+          allow-prereleases: true
 
       # We use C:\Temp (which is already available on the worker)
       # as a temporary directory for all of the tests because the
